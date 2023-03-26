@@ -3,8 +3,11 @@ import { io } from "socket.io-client";
 import "./App.css";
 import hideIcon from "./assets/hide-icon.svg";
 import showIcon from "./assets/show-icon.svg";
+import dotenv from "dotenv";
 
-const SOCKET_SERVER_URL = "http://127.0.0.1:8001";
+dotenv.config();
+
+const SOCKET_SERVER_URL = process.env.REACT_APP_SOCKET_SERVER_URL;
 const SUMMARY_STORAGE_KEY = "video_summary";
 
 function App() {
@@ -82,13 +85,7 @@ function App() {
   const [isSummaryMinimized, setIsSummaryMinimized] = React.useState(false);
 
   const handleToggleSummary = () => {
-    if (isMinimized) {
-      setMinimized(false);
-      setToggleIconSrc(hideIcon);
-    } else {
-      setMinimized(true);
-      setToggleIconSrc(showIcon);
-    }
+    setIsSummaryMinimized(!isSummaryMinimized);
   };
 
   const summaryClass = isSummaryMinimized ? "minimized" : "";
