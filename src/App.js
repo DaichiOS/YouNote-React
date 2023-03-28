@@ -42,14 +42,12 @@ function App() {
   const handleSummariseVideoClick = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0].id;
-
       chrome.tabs.get(tabId, (tab) => {
         const url = tab.url;
         if (!url) {
           console.log("Error: URL is empty or undefined");
           return;
         }
-
         try {
           const urlParams = new URLSearchParams(new URL(url).search);
           const id = urlParams.get("v");
@@ -68,6 +66,24 @@ function App() {
     });
   };
 
+  // Listen for URL changes
+  const handleUrlChange = (tabId, changeInfo, tab) => {
+    if (changeInfo.url) {
+      setSummary("");
+      localStorage.removeItem(SUMMARY_STORAGE_KEY);
+    }
+  };
+
+  // Set up event listener for url changes
+  useEffect(() => {
+    chrome.tabs.onUpdated.addListener(handleUrlChange);
+
+    return () => {
+      chrome.tabs.onUpdated.removeListener(handleUrlChange);
+    };
+  }, []);
+
+  // Set up event listener for button click
   useEffect(() => {
     const button = document.getElementById("summarise-button");
     if (button) {
@@ -88,7 +104,7 @@ function App() {
   const summaryClass = isSummaryMinimized ? "minimized" : "";
 
   return (
-    <div className={`App ${summaryClass}`}>
+    <div className={`App${summaryClass}`}>
       <button id="summarise-button" onClick={handleSummariseVideoClick}>
         Summarise Video
       </button>
