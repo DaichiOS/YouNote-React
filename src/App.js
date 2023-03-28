@@ -3,9 +3,6 @@ import { io } from "socket.io-client";
 import "./App.css";
 import hideIcon from "./assets/hide-icon.svg";
 import showIcon from "./assets/show-icon.svg";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const SOCKET_SERVER_URL = process.env.REACT_APP_SOCKET_SERVER_URL;
 const SUMMARY_STORAGE_KEY = "video_summary";
@@ -43,16 +40,17 @@ function App() {
   }, [summary]);
 
   const handleSummariseVideoClick = () => {
+    setSummary(""); // Reset the summary state when the button is clicked (in case the user is summarising a new video
+    // Grab tab URL
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0].id;
-
       chrome.tabs.get(tabId, (tab) => {
         const url = tab.url;
         if (!url) {
           console.log("Error: URL is empty or undefined");
           return;
         }
-
+        //If URL is not empty of undefined, grab the video ID from the URL
         try {
           const urlParams = new URLSearchParams(new URL(url).search);
           const id = urlParams.get("v");

@@ -4,7 +4,9 @@
   "description": "YouNote is a simple chrome extension that uses ChatGPT to summarise youtube videos for you",
   "version": "1.0",
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "logo512.png",
+    "icon": "logo512.png"
   },
   "permissions": ["scripting", "tabs", "activeTab"]
 }
