@@ -5,7 +5,10 @@ const CopyPlugin = require("copy-webpack-plugin");
 const Dotenv = require("dotenv-webpack");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: {
+    index: "./src/index.js",
+    background: "./src/background.js",
+  },
   output: {
     path: path.resolve(__dirname, "dist"), // path for the build
     filename: "[name].js",
