@@ -1,28 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { createSocket, closeSocket } from "../socketHandler";
 import { getVideoIdFromUrl } from "../utils";
 
 const SUMMARY_STORAGE_KEY = "video_summary";
 
 export function useSummary() {
-  const socketRef = useRef();
   const [videoId, setVideoId] = useState("");
   const [summary, setSummary] = useState(() => {
     return localStorage.getItem(SUMMARY_STORAGE_KEY) || "";
   });
 
   useEffect(() => {
-    if (!videoId) {
-      return;
-    }
-
-    setSummary(""); // Reset the summary state when a new video ID is set
-    socketRef.current = createSocket(videoId, setSummary);
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.type === "updateSummary") {
+        setSummary((prevSummary) => prevSummary + request.summary);
+      }
+    });
 
     return () => {
-      closeSocket(socketRef.current);
+      chrome.runtime.sendMessage({ type: "closeSocket" });
     };
-  }, [videoId]);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(SUMMARY_STORAGE_KEY, summary);
@@ -41,6 +38,7 @@ export function useSummary() {
         const id = getVideoIdFromUrl(url);
         if (id) {
           setVideoId(id);
+          chrome.runtime.sendMessage({ type: "summarizeVideo", videoId: id });
         } else {
           console.log("Error: Video ID not found in URL");
         }

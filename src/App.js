@@ -13,8 +13,6 @@ function App() {
   const { summary, handleSummariseVideoClick } = useSummary();
   const { appRef } = useAutoScroll(summary);
 
-  const SUMMARY_STORAGE_KEY = "video_summary";
-
   // Listen for URL changes
   const handleUrlChange = (tabId, changeInfo, tab) => {
     if (changeInfo.url) {
