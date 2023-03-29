@@ -12,8 +12,8 @@ body {
   width: 400px;
   min-height: 400px;
   max-height: 400px;
-  overflow-y: scroll;
   border: 2px solid #8bc34a;
+  overflow-y: auto;
 }
 
 h1 {
@@ -41,6 +41,7 @@ h1 {
   white-space: pre-wrap;
   font-size: 16px;
   display: block;
+  height: 400px;
 }
 
 .summary-container {
@@ -66,12 +67,12 @@ h1 {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 1px;
+  width: 10px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #8bc34a;
+  background: #3d6213;
 }
 
 /* Handle */
