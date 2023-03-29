@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
-import { io } from "socket.io-client";
 import "./App.css";
 import hideIcon from "./assets/hide-icon.svg";
 import showIcon from "./assets/show-icon.svg";
+import { createSocket, closeSocket } from "./socketHandler";
+import {
+  addSummariseVideoClickListener,
+  addUrlChangeListener,
+} from "./eventListeners";
+import { getVideoIdFromUrl } from "./utils";
 
-const SOCKET_SERVER_URL = process.env.REACT_APP_SOCKET_SERVER_URL;
 const SUMMARY_STORAGE_KEY = "video_summary";
 
 function App() {
@@ -20,18 +24,10 @@ function App() {
     }
 
     setSummary(""); // Reset the summary state when a new video ID is set
-
-    socketRef.current = io(SOCKET_SERVER_URL);
-    socketRef.current.on("connect", () => {
-      socketRef.current.emit("processVideoId", videoId);
-    });
-
-    socketRef.current.on("chatgpt_response", (newText) => {
-      setSummary((prevSummary) => prevSummary + newText);
-    });
+    socketRef.current = createSocket(videoId, setSummary);
 
     return () => {
-      socketRef.current.disconnect();
+      closeSocket(socketRef.current);
     };
   }, [videoId]);
 
@@ -48,19 +44,11 @@ function App() {
           console.log("Error: URL is empty or undefined");
           return;
         }
-        try {
-          const urlParams = new URLSearchParams(new URL(url).search);
-          const id = urlParams.get("v");
-          if (id) {
-            setVideoId(id);
-            if (socketRef.current) {
-              socketRef.current.emit("processVideoId", id);
-            }
-          } else {
-            console.log("Error: Video ID not found in URL");
-          }
-        } catch (error) {
-          console.log("Error: Failed to parse URL", error);
+        const id = getVideoIdFromUrl(url);
+        if (id) {
+          setVideoId(id);
+        } else {
+          console.log("Error: Video ID not found in URL");
         }
       });
     });
@@ -74,25 +62,21 @@ function App() {
     }
   };
 
-  // Set up event listener for url changes
-  useEffect(() => {
-    chrome.tabs.onUpdated.addListener(handleUrlChange);
-
-    return () => {
-      chrome.tabs.onUpdated.removeListener(handleUrlChange);
-    };
-  }, []);
-
   // Set up event listener for button click
   useEffect(() => {
     const button = document.getElementById("summarise-button");
-    if (button) {
-      button.addEventListener("click", handleSummariseVideoClick);
+    const removeClickListener = addSummariseVideoClickListener(
+      button,
+      handleSummariseVideoClick
+    );
 
-      return () => {
-        button.removeEventListener("click", handleSummariseVideoClick);
-      };
-    }
+    return removeClickListener;
+  }, []);
+
+  // Set up event listener for url changes
+  useEffect(() => {
+    const removeUrlChangeListener = addUrlChangeListener(handleUrlChange);
+    return removeUrlChangeListener;
   }, []);
 
   const [isSummaryMinimized, setIsSummaryMinimized] = React.useState(false);
