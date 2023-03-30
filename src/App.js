@@ -1,18 +1,26 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
+import React, { useEffect, useState, useRef } from "react";
+import "./css/App.css";
 import { useVideoSummary } from "./hooks/useVideoSummary";
 import { getVideoIdFromUrl } from "./utils/getVideoIdFromUrl";
-import Summary from "./components/Summary";
+import Chat from "./components/Chat";
+import { io } from "socket.io-client";
 
 const SUMMARY_STORAGE_KEY = "video_summary";
+const SOCKET_SERVER_URL = process.env.REACT_APP_DEV_SERVER_URL;
 
 function App() {
   const [videoId, setVideoId] = useState("");
-  const summary = useVideoSummary(videoId);
+  const [chatHistory, setChatHistory] = useState([]);
+  const socketRef = useRef();
 
   useEffect(() => {
-    localStorage.setItem(SUMMARY_STORAGE_KEY, summary);
-  }, [summary]);
+    socketRef.current = io(SOCKET_SERVER_URL);
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  useVideoSummary(videoId, socketRef.current, setChatHistory);
 
   const handleSummariseVideoClick = () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -53,7 +61,12 @@ function App() {
       <button id="summarise-button" onClick={handleSummariseVideoClick}>
         Summarise Video
       </button>
-      <Summary summary={summary} />
+      <Chat
+        videoId={videoId}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        socket={socketRef.current}
+      />
     </div>
   );
 }

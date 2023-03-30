@@ -13,6 +13,7 @@ export const useVideoSummary = (videoId) => {
 
     setSummary("");
     const socket = io(SOCKET_SERVER_URL);
+
     socket.on("connect", () => {
       socket.emit("processVideoId", videoId);
     });
