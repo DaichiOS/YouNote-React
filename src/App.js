@@ -1,4 +1,3 @@
-// App.js
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { useVideoSummary } from "./hooks/useVideoSummary";
@@ -10,9 +9,6 @@ const SUMMARY_STORAGE_KEY = "video_summary";
 function App() {
   const [videoId, setVideoId] = useState("");
   const summary = useVideoSummary(videoId);
-  const [isSummaryMinimized, setIsSummaryMinimized] = useState(false);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [userInput, setUserInput] = useState("");
 
   useEffect(() => {
     localStorage.setItem(SUMMARY_STORAGE_KEY, summary);
@@ -57,11 +53,7 @@ function App() {
       <button id="summarise-button" onClick={handleSummariseVideoClick}>
         Summarise Video
       </button>
-      <Summary
-        summary={summary}
-        isSummaryMinimized={isSummaryMinimized}
-        setIsSummaryMinimized={setIsSummaryMinimized}
-      />
+      <Summary summary={summary} />
     </div>
   );
 }
