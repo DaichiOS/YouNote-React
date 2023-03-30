@@ -11,6 +11,8 @@ function App() {
   const [videoId, setVideoId] = useState("");
   const summary = useVideoSummary(videoId);
   const [isSummaryMinimized, setIsSummaryMinimized] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [userInput, setUserInput] = useState("");
 
   useEffect(() => {
     localStorage.setItem(SUMMARY_STORAGE_KEY, summary);
